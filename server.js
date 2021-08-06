@@ -6,6 +6,12 @@ const uuid = require('./helpers/uuid');
 const db = require('./db/db.json')
 const PORT = process.env.PORT || 3001;
 
+const {
+    readFromFile,
+    readAndAppend,
+    writeToFile,
+} = require('./helpers/fsUtils');
+
 const app = express();
 
 // Import custom middleware, "cLog"
@@ -87,40 +93,57 @@ app.post('/api/notes', (req, res) =>
 
 
 // DELETE request to delete a note
-app.delete('/api/notes/:id', (req, res) =>
-    // Obtain existing notes
-    fs.readFile('./db/db.json', 'utf8', (err, data) =>
-    {
-        if (err) {
-            console.error(err);
-        } else {
-            const deletedNote = req.params.id;
-            // Convert string into JSON object
-            const parsedNote = JSON.parse(data);
-            console.log("deleted Note: ", deletedNote)
-            console.log("parsed Note: ", parsedNote)
-            console.log("db ", db)
+// app.delete('/api/notes/:id', (req, res) =>
+//     // Obtain existing notes
+//     fs.readFile('./db/db.json', 'utf8', (err, data) =>
+//     {
+//         if (err) {
+//             console.error(err);
+//         } else {
+//             const deletedNote = req.params.id;
+//             // Convert string into JSON object
+//             const parsedNote = JSON.parse(data);
+//             console.log("deleted Note: ", deletedNote)
+//             console.log("parsed Note: ", parsedNote)
+//             console.log("db ", db)
 
-            // remove the note from the array
-           for (var i = 0; i < db.length; i++){
-               if (db.id === deletedNote) {
-                   db.splice(db[i], 1);
-                   break
-               }
-           }
-            // Write updated notes back to the file
-            fs.writeFile(
-                './db/db.json',
-                JSON.stringify(db), (err, result) =>
-                res.json(db)
+//             // remove the note from the array
+//            for (var i = 0; i < db.length; i++){
+//                if (db.id === deletedNote) {
+//                    db.splice(db[i], 1);
+//                    break
+//                }
+//            }
+//             // Write updated notes back to the file
+//             fs.writeFile(
+//                 './db/db.json',
+//                 JSON.stringify(db), (err, result) =>
+//                 res.json(db)
                
-            );
-        }
-    }
-))
+//             );
+//         }
+//     }
+// ))
 
 
+// DELETE Route 
+app.delete('/api/notes/:id', (req, res) =>
+{
+    const noteId = req.params.id;
+    readFromFile('./db/db.json')
+    .then((data) => JSON.parse(data))
+    .then((json) =>
+    {
+            // Make a new array of all songs except the one with the ID provided in the URL
+            const result = json.filter((note) => note.id !== noteId);
 
+            // Save that array to the filesystem
+            writeToFile('./db/db.json', result);
+
+            // Respond to the DELETE request
+            res.json(`Item ${noteId} has been deleted 🗑️`);
+        });
+});
 
 
 // Open up port for local host
