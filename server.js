@@ -3,7 +3,9 @@ const fs = require('fs')
 const path = require('path');
 const { clog } = require('./middleware/clog');
 const uuid = require('./helpers/uuid');
+const db = require('./db/db.json')
 const PORT = process.env.PORT || 3001;
+
 const app = express();
 
 // Import custom middleware, "cLog"
@@ -29,8 +31,7 @@ app.get('/api/notes', (req, res) =>
 );
 
 
-
-// POST request to add a review
+// POST request to add a note
 app.post('/api/notes', (req, res) =>
 {
     // Log that a POST request was received
@@ -43,9 +44,9 @@ app.post('/api/notes', (req, res) =>
     if (title && text) {
         // Variable for the object we will save
         const newNote = {
+            id: uuid(),
             title,
             text,
-            review_id: uuid(),
         };
 
         // Obtain existing notes
@@ -57,10 +58,10 @@ app.post('/api/notes', (req, res) =>
                 // Convert string into JSON object
                 const parsedNote = JSON.parse(data);
 
-                // Add a new review
+                // Add a new note
                 parsedNote.push(newNote);
 
-                // Write updated reviews back to the file
+                // Write updated notes back to the file
                 fs.writeFile(
                     './db/db.json',
                     JSON.stringify(parsedNote, null, 4),
@@ -85,9 +86,38 @@ app.post('/api/notes', (req, res) =>
 });
 
 
+// DELETE request to delete a note
+app.delete('/api/notes/:id', (req, res) =>
+    // Obtain existing notes
+    fs.readFile('./db/db.json', 'utf8', (err, data) =>
+    {
+        if (err) {
+            console.error(err);
+        } else {
+            const deletedNote = req.params.id;
+            // Convert string into JSON object
+            const parsedNote = JSON.parse(data);
+            console.log("deleted Note: ", deletedNote)
+            console.log("parsed Note: ", parsedNote)
+            console.log("db ", db)
 
-
-
+            // remove the note from the array
+           for (var i = 0; i < db.length; i++){
+               if (db.id === deletedNote) {
+                   db.splice(db[i], 1);
+                   break
+               }
+           }
+            // Write updated notes back to the file
+            fs.writeFile(
+                './db/db.json',
+                JSON.stringify(db), (err, result) =>
+                res.json(db)
+               
+            );
+        }
+    }
+))
 
 
 
