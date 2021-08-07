@@ -27,7 +27,7 @@ app.use(express.static('public'));
 app.get('/', (req, res) =>
     res.sendFile(path.join(__dirname, '/public/index.html'))
 );
-// GET Route for homepage
+// GET Route for notes
 app.get('/notes', (req, res) =>
     res.sendFile(path.join(__dirname, '/public/notes.html'))
 );
@@ -90,41 +90,6 @@ app.post('/api/notes', (req, res) =>
         res.json('Error in posting your note');
     }
 });
-
-
-// DELETE request to delete a note
-// app.delete('/api/notes/:id', (req, res) =>
-//     // Obtain existing notes
-//     fs.readFile('./db/db.json', 'utf8', (err, data) =>
-//     {
-//         if (err) {
-//             console.error(err);
-//         } else {
-//             const deletedNote = req.params.id;
-//             // Convert string into JSON object
-//             const parsedNote = JSON.parse(data);
-//             console.log("deleted Note: ", deletedNote)
-//             console.log("parsed Note: ", parsedNote)
-//             console.log("db ", db)
-
-//             // remove the note from the array
-//            for (var i = 0; i < db.length; i++){
-//                if (db.id === deletedNote) {
-//                    db.splice(db[i], 1);
-//                    break
-//                }
-//            }
-//             // Write updated notes back to the file
-//             fs.writeFile(
-//                 './db/db.json',
-//                 JSON.stringify(db), (err, result) =>
-//                 res.json(db)
-               
-//             );
-//         }
-//     }
-// ))
-
 
 // DELETE Route 
 app.delete('/api/notes/:id', (req, res) =>
