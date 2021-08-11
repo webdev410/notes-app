@@ -36,7 +36,6 @@ app.get('/api/notes', (req, res) =>
     res.sendFile(path.join(__dirname, '/db/db.json'))
 );
 
-
 // POST request to add a note
 app.post('/api/notes', (req, res) =>
 {
